@@ -9,15 +9,6 @@ hdfs dfs -chown -R root /input_s4
 exit 
 hdfs dfs -put DE1_0_2010_Beneficiary_Summary_File_Sample_4.csv /input_s4/patient
 
--- pde 
-
-sudo su - hdfs
-hdfs dfs -mkdir -p /input_s4/pde
-hdfs dfs -chown -R root /input_s4
-exit 
-hdfs dfs -put DE1_0_2008_to_2010_Prescription_Drug_Events_Sample_4.csv /input_s4/pde
-hdfs dfs -rmdir  --ignore-fail-on-non-empty /input_s4/pde
-
 --inpatient
 sudo su - hdfs
 hdfs dfs -mkdir -p /input_s4/inpatient
@@ -47,35 +38,6 @@ hdfs dfs -mkdir -p /input_s4/carrierb
 hdfs dfs -chown -R root /input_s4
 exit 
 hdfs dfs -put DE1_0_2008_to_2010_Carrier_Claims_Sample_4B.csv /input_s4/carrierb
-
-
-
---Procedure code mapping
--- sudo su - hdfs
-
--- hdfs dfs -rm -r /input_s4/ccs_proc_mapping
--- hdfs dfs -mkdir -p /input_s4/ccs_proc_mapping
--- hdfs dfs -chown -R root /input_s4
--- exit 
--- hdfs dfs -put ccs_proc_mapping.csv /input_s4/ccs_proc_mapping
-
-
--- --Diagnosis code mapping
--- sudo su - hdfs
--- hdfs dfs -rm -r /input_s4/ccs_diag_mapping
--- hdfs dfs -mkdir -p /input_s4/ccs_diag_mapping
--- hdfs dfs -chown -R root /input_s4
--- exit 
--- hdfs dfs -put ccs_diag_mapping.csv /input_s4/ccs_diag_mapping
-
--- --Case Control Mapping
--- sudo su - hdfs
--- hdfs dfs -rm -r /input_s4/ccs_diag_mapping
--- hdfs dfs -mkdir -p /input_s4/ccs_diag_mapping
--- hdfs dfs -chown -R root /input_s4
--- exit 
--- hdfs dfs -put ccs_diag_mapping.csv /input_s4/ccs_diag_mapping
-
 
 
 
@@ -518,8 +480,6 @@ create table sample_ehr_s4 as
 select a.* 
 from patient_ehr_s4 a join sample_pool_s4 b on a.patient_id = b.patient_id
 where b.is_case = 0;
-
-
 
 drop table if exists sample_static_s4;
 create table sample_static_s4 as
