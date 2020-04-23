@@ -29,7 +29,8 @@ def A_join_X(A, X_df):
             j += 1
         temp = X_df.iloc[start : j, 1:]
         X.append(csr_matrix(([1 for _ in range(temp.shape[0])], ((temp["r"]-1), (temp["code"]-1))), shape = (temp["r"].iloc[-1], max(X_df["code"]))))
-    return X
+    A = A.iloc[:, 1:-1].to_numpy() # A_case = np.ones(12494, 1)
+    return A, X
 
 def my_plot(RMSE_TIME, name):
     fig = plt.figure()
@@ -52,10 +53,8 @@ def main(R, static, dynamic, use_saved_np):
 
         X_df = pd.read_csv(dynamic, header = 0)
 
-        X_case = A_join_X(A_case, X_df)
-        A_case = A_case.iloc[:, 1:-1].to_numpy() # A_case = np.ones(12494, 1)
-        X_ctrl = A_join_X(A_ctrl, X_df)
-        A_ctrl = A_ctrl.iloc[:, 1:-1].to_numpy() # A_ctrl = np.ones(12494, 1)
+        A_case, X_case = A_join_X(A_case, X_df)
+        A_ctrl, X_ctrl = A_join_X(A_ctrl, X_df)
         np.savez_compressed("AX.npz", X_case = X_case, A_case = A_case, X_ctrl = X_ctrl, A_ctrl = A_ctrl)
 
     lambda_ = 1
