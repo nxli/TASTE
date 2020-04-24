@@ -39,7 +39,21 @@ def my_plot(RMSE_TIME, name):
     plt.ylabel("RMSE")
     plt.savefig(name)
 
-def main(R, static, dynamic, use_saved_np):
+def fit(R, A, X, lambda_ = 1, mu = 1, conv_tol = 1e-4, PARFOR_FLAG = 0, Constraints = ['nonnegative', 'nonnegative','nonnegative','nonnegative'], seed = 1):
+    normX, normA, Size_input = taste_frame.claculate_norm(X,A,A.shape[0],PARFOR_FLAG) #Calculate the norm of the input X
+    TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME_case,U,Q,H,V,W,F = taste_frame.TASTE_BPP(X,A,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_)
+    my_plot(RMSE_TIME_case, str(R) + ".png")
+    return normX, normA, Size_input, TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME_case,U,Q,H,V,W,F
+
+def project(R, A, X,V,F,H,lambda_ = 1, mu = 1, conv_tol = 1e-4,PARFOR_FLAG = 0,Constraints = ['nonnegative', 'nonnegative','nonnegative','nonnegative'], seed = 1):
+    normX, normA, Size_input = taste_frame.claculate_norm(X,A,A.shape[0],PARFOR_FLAG) #Calculate the norm of the input X
+    TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U,Q,H,V,W,F = taste_frame.PARACoupl2_BPP( X,A,V,F,H,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_ )
+    my_plot(RMSE_TIME_ctrl, str(R) + "_projection.png")
+
+    return normX, normA, Size_input, TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U,Q,H,V,W,F
+
+if __name__ == '__main__':
+    use_saved_np = False
     if use_saved_np:
         with np.load('AX.npz', allow_pickle = True) as data:
             X_case = data['X_case']
@@ -47,32 +61,18 @@ def main(R, static, dynamic, use_saved_np):
             A_case = data['A_case']
             A_ctrl = data['A_ctrl']
     else:
-        A_df = pd.read_csv(static, header = 0)
+        A_df = pd.read_csv("data/static.csv", header = None, names = ["patient_id", "r", "code"])
         A_case = A_df[A_df["is_case"] == 1]
         A_ctrl = A_df[A_df["is_case"] == 0]
 
-        X_df = pd.read_csv(dynamic, header = 0)
+        X_df = pd.read_csv("data/dynamic.csv", header = None, names = ["patient_id","sex","race_white","race_black","race_others","race_hispanic","esrd","sp_alzhdmta","sp_chf","sp_chrnkidn","sp_cncr","sp_copd","sp_depressn","sp_ischmcht","sp_osteoprs","sp_ra_oa","sp_strketia","leq68","leq74","leq82","geq82","is_case"])
 
         A_case, X_case = A_join_X(A_case, X_df)
         A_ctrl, X_ctrl = A_join_X(A_ctrl, X_df)
         np.savez_compressed("AX.npz", X_case = X_case, A_case = A_case, X_ctrl = X_ctrl, A_ctrl = A_ctrl)
 
-    lambda_ = 1
-    mu = 1
-    conv_tol = 1e-4 #converegance tolerance
-    PARFOR_FLAG = 0 #parallel computing
-    Constraints = ['nonnegative', 'nonnegative','nonnegative','nonnegative']
-    seed = 1
+    R = 5
 
-    normX, normA, Size_input = taste_frame.claculate_norm(X_case,A_case,A_case.shape[0],PARFOR_FLAG) #Calculate the norm of the input X_case
-    TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME_case,U_case,Q_case,H_case,V_case,W_case,F_case = taste_frame.TASTE_BPP(X_case,A_case,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_)
-    my_plot(RMSE_TIME_case, str(R) + ".png")
+    normX, normA, Size_input, TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME_case,U_case,Q_case,H,V,W_case,F = fit(R, A_case, X_case)
 
-    normX, normA, Size_input = taste_frame.claculate_norm(X_ctrl,A_ctrl,A_ctrl.shape[0],PARFOR_FLAG) #Calculate the norm of the input X_ctrl
-    TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl = taste_frame.PARACoupl2_BPP( X_ctrl,A_ctrl,V_case,F_case,H_case,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_ )
-    my_plot(RMSE_TIME_ctrl, str(R) + "_projection.png")
-
-    return RMSE_TIME_case,U_case,Q_case,H_case,V_case,W_case,F_case,RMSE_TIME_ctrl,U_ctrl,Q_ctrl,H_ctrl,V_ctrl,W_ctrl,F_ctrl
-
-if __name__ == '__main__':
-    main(R = 5, static = "data/static.csv", dynamic = "data/dynamic.csv", use_saved_np = False)
+    normX, normA, Size_input, TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U,Q,H,V,W,F = project(R, A_ctrl, X_ctrl, V, F, H)
