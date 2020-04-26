@@ -2,7 +2,9 @@
 
 TASTE combines the PARAFAC2 model with non-negative matrix factorization to model a temporal and a static tensor. It performs two import tasks in healthcare: 1- computational phenotyping 2- Predictive modeling by analyzing electronic health records (EHRs).
 
-[Xinyan Ye]() and [Xinze Wang]() processed the CMS data using Hive.
+[Yanxin Ye](https://github.com/Yanxin-Ye) processed the CMS data using Hive.
+
+[Xinze Wang]() did case-control mapping using Pymatch.
 
 [Xingchi Li](https://lixingchi.com) translated MATLAB code of TASTE and [Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares](https://www.cc.gatech.edu/~hpark/nmfsoftware.php) to Python then did compatibility modification.
 
