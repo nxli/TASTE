@@ -1,10 +1,14 @@
 # TASTE
 
-TASTE and [Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares](https://www.cc.gatech.edu/~hpark/nmfsoftware.php) translated from MATLAB to Python by [Xingchi Li](https://lixingchi.com).
-
-MATLAB code can be found in [legacy](legacy/).
-
 TASTE combines the PARAFAC2 model with non-negative matrix factorization to model a temporal and a static tensor. It performs two import tasks in healthcare: 1- computational phenotyping 2- Predictive modeling by analyzing electronic health records (EHRs).
+
+[Xinyan Ye]() and [Xinze Wang]() processed the CMS data using Hive.
+
+[Xingchi Li](https://lixingchi.com) translated MATLAB code of TASTE and [Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares](https://www.cc.gatech.edu/~hpark/nmfsoftware.php) to Python then did compatibility modification.
+
+[Hung-Yi Li]() did the cross validation and numerous experiments to do better comparison.
+
+Previous TASTE code can be found in [legacy](legacy/) which is implemented in MATLAB by [Ardavan (Ari) Afshar](aafshar8@gatech.edu).
 
 <img src="Images/TASTE_Framework.png" width=800 alt="centered image">
 
@@ -21,16 +25,13 @@ Health Records." ACM CHIL 2020.
 
 ### Code description
 
-[Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares](https://www.cc.gatech.edu/~hpark/nmfsoftware.php) has been imported in the [nonnegfac](legacy/nonnegfac-matlab-master/).
+[Nonnegative matrix factorization (NMF) algorithms based on alternating non-negativity constrained least squares](https://www.cc.gatech.edu/~hpark/nmfsoftware.php) has been imported and translated in [nonnegfac.py](nonnegfac.py).
 
-Before running the codes you need to import the following packages:
-* Tensor Toolbox Version 2.6 which can be downloaded from: https://www.sandia.gov/~tgkolda/TensorToolbox/index-2.6.html
+<!-- Before running the codes you need to import the following packages:
+* Tensor Toolbox Version 2.6 which can be downloaded from: https://www.sandia.gov/~tgkolda/TensorToolbox/index-2.6.html -->
 
-To start with you need to run: "main.m" file.
-`main` function takes four parameters, `R`, `static`, `dynamic` and `use`.
+There are two main functions defined in `main.py`: `fit(R, A, X)` and `project(R, A, X, V, F, H)`:
 * `R` denotes the number of phenotypes
-* `static` denotes the path to the static file
-* `dynamic` denotes the path to the dynamic file
-* `use` denotes whether to use saved files. Should be passed `False` for the first time run.
-
-If you find any bug  in the codes or face any issue please feel free to contact aafshar8@gatech.edu
+* `A` denotes the static feature matrix
+* `X` denotes the temporal feature matrix
+* `V`, `F`, `H` are the matrices obtained from the `fit` function.

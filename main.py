@@ -45,7 +45,7 @@ def fit(R, A, X, lambda_ = 1, mu = 1, conv_tol = 1e-4, PARFOR_FLAG = 0, Constrai
     my_plot(RMSE_TIME_case, str(R) + ".png")
     return normX, normA, Size_input, TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME_case,U,Q,H,V,W,F
 
-def project(R, A, X,V,F,H,lambda_ = 1, mu = 1, conv_tol = 1e-4,PARFOR_FLAG = 0,Constraints = ['nonnegative', 'nonnegative','nonnegative','nonnegative'], seed = 1):
+def project(R, A, X, V, F, H, lambda_ = 1, mu = 1, conv_tol = 1e-4,PARFOR_FLAG = 0,Constraints = ['nonnegative', 'nonnegative','nonnegative','nonnegative'], seed = 1):
     normX, normA, Size_input = taste_frame.claculate_norm(X,A,A.shape[0],PARFOR_FLAG) #Calculate the norm of the input X
     TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U,Q,H,V,W,F = taste_frame.PARACoupl2_BPP( X,A,V,F,H,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda_ )
     my_plot(RMSE_TIME_ctrl, str(R) + "_projection.png")
