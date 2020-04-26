@@ -2,7 +2,7 @@
 
 TASTE combines the PARAFAC2 model with non-negative matrix factorization to model a temporal and a static tensor. It performs two import tasks in healthcare: 1- computational phenotyping 2- Predictive modeling by analyzing electronic health records (EHRs).
 
-[Xinyan Ye]() processed the CMS data using Hive.
+[Yanxin Ye](https://github.com/Yanxin-Ye) processed the CMS data using Hive.
 
 [Xinze Wang]() did case-control mapping using Pymatch.
 
