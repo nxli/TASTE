@@ -61,11 +61,11 @@ if __name__ == '__main__':
             A_case = data['A_case']
             A_ctrl = data['A_ctrl']
     else:
-        A_df = pd.read_csv("data/static.csv", header = None, names = ["patient_id", "r", "code"])
+        A_df = pd.read_csv("data/static.csv", header = None, names = ["patient_id", "sex","race_white","race_black","race_others","race_hispanic","esrd","sp_alzhdmta","sp_chf","sp_chrnkidn","sp_cncr","sp_copd","sp_depressn","sp_ischmcht","sp_osteoprs","sp_ra_oa","sp_strketia","leq68","leq74","leq82","geq82","is_case"])
         A_case = A_df[A_df["is_case"] == 1]
         A_ctrl = A_df[A_df["is_case"] == 0]
 
-        X_df = pd.read_csv("data/dynamic.csv", header = None, names = ["patient_id","sex","race_white","race_black","race_others","race_hispanic","esrd","sp_alzhdmta","sp_chf","sp_chrnkidn","sp_cncr","sp_copd","sp_depressn","sp_ischmcht","sp_osteoprs","sp_ra_oa","sp_strketia","leq68","leq74","leq82","geq82","is_case"])
+        X_df = pd.read_csv("data/dynamic.csv", header = None, names = ["patient_id","r", "code"])
 
         A_case, X_case = A_join_X(A_case, X_df)
         A_ctrl, X_ctrl = A_join_X(A_ctrl, X_df)
