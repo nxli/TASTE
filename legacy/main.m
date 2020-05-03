@@ -1,126 +1,35 @@
-function main( R, static, dynamic, use_saved_mat )
-    %clc;
-    clearvars -except R static dynamic use_saved_mat;
-    close all;
+%clc;
+clearvars;
+close all;
 
-    addpath(genpath('./TASTE_Framework'));
-    addpath(genpath('./nonnegfac-matlab-master')); % this package is from https://www.cc.gatech.edu/~hpark/nmfsoftware.php
+addpath(genpath('./TASTE_Framework'));
+addpath(genpath('./nonnegfac-matlab-master')); % this package is from https://www.cc.gatech.edu/~hpark/nmfsoftware.php
 
-    % Case need to be fit before projection!!
+% Case need to be fit before projection!!
 
-    if isfile("case.mat") && use_saved_mat
-        load("case.mat", 'A', 'X', 'K', 'P', 'X_height', 'J');
-    else
-        A = readtable(static, 'HeaderLines', 1);
-        sele = A{:, end};
-        sele = sele(:, :);
-        A = A(sele==1, :);
-        XK = readtable(dynamic, 'HeaderLines', 1);
-        [K, P] = size(A);
-        X_height = height(XK);
-        J = max(XK{:, 3});
-        X = cell(K, 1);
-        j = 1;
-        for k = 1:K
-            while (j <= X_height) && ~strcmp(A{k, 1}{1}, XK{j, 1}{1})
-                j = j + 1;
-            end
-            start = j;
-            while (j <= X_height) && strcmp(A{k, 1}{1}, XK{j, 1}{1})
-                j = j + 1;
-            end
-            X{k} = XK{start : (j-1), 2:3};
-        end
-        A = A(:, 2:end);
-        for k = 1:K
-            hei = size(X{k});
-            X{k} = sparse(X{k}(:, 1), X{k}(:, 2), ones(hei(1), 1), X{k}(end, 1), J);
-        end
-        A = A{:, :};
-        save("case.mat")
-    end
+use_saved_np = true;
 
-    %A = ones(12494, 1);
+if use_saved_np
+    load("AX.mat", 'X_case', 'X_ctrl', 'A_case', 'A_ctrl');
+else
+    A_df = readtable("../data/static.csv", 'HeaderLines',0);
+    sele = A_df{:, end};
+    sele = sele(:, :);
+    A_case = A_df(sele==1, :);
+    A_ctrl = A_df(sele==0, :);
 
-    if isfile(strcat(num2str(R), "_case.mat")) && use_saved_mat
-        load(strcat(num2str(R), "_case.mat"));
-    else
-        data_name="CMS";
-        lambda=1;
-        mu=1;
-        conv_tol=1e-5; %converegance tolerance
-        PARFOR_FLAG=0; %parallel computing
-        [normX,normA,Size_input]=claculate_norm(X,A,K,PARFOR_FLAG); %Calculate the norm of the input X
-        Constraints={'nonnegative', 'nonnegative','nonnegative','nonnegative'};
+    X_df = readtable("../data/dynamic.csv", 'HeaderLines',0);
 
-        itr=5;
-        seed=1;
-
-        [TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME,U,Q,H,V,W,F]=TASTE_BPP(X,A,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda);
-        figure();
-        plot(RMSE_TIME(:,1),RMSE_TIME(:,2));
-        xlabel("Time");
-        ylabel("RMSE");
-        saveas(gcf,num2str(R),'epsc');
-
-        save(strcat(num2str(R), "_case.mat"));
-    end
-
-    if isfile("ctrl.mat") && use_saved_mat
-        load("ctrl.mat", 'A', 'X', 'K', 'P', 'X_height', 'J');
-    else
-        A = readtable(static, 'HeaderLines', 1);
-        sele = A{:, end};
-        sele = sele(:, :);
-        A = A(sele==0, :);
-        XK = readtable(dynamic, 'HeaderLines', 1);
-        [K, P] = size(A);
-        X_height = height(XK);
-        J = max(XK{:, 3});
-        X = cell(K, 1);
-        j = 1;
-        for k = 1:K
-            while (j <= X_height) && ~strcmp(A{k, 1}{1}, XK{j, 1}{1})
-                j = j + 1;
-            end
-            start = j;
-            while (j <= X_height) && strcmp(A{k, 1}{1}, XK{j, 1}{1})
-                j = j + 1;
-            end
-            X{k} = XK{start : (j-1), 2:3};
-        end
-        A = A(:, 2:end);
-        for k = 1:K
-            hei = size(X{k});
-            X{k} = sparse(X{k}(:, 1), X{k}(:, 2), ones(hei(1), 1), X{k}(end, 1), J);
-        end
-        A = A{:, :};
-        save("ctrl.mat")
-    end
-
-    %A = ones(12494, 1);
-
-    if isfile(strcat(num2str(R), "_ctrl.mat")) && use_saved_mat
-        load(strcat(num2str(R), "_ctrl.mat"));
-    else
-        data_name="CMS";
-        lambda=1;
-        mu=1;
-        conv_tol=1e-5; %converegance tolerance
-        PARFOR_FLAG=0; %parallel computing
-        [normX,normA,Size_input]=claculate_norm(X,A,K,PARFOR_FLAG); %Calculate the norm of the input X
-        Constraints={'nonnegative', 'nonnegative','nonnegative','nonnegative'};
-
-        itr=5;
-        seed=1;
-
-        [ TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME,U,Q,H,V,W,F ] = PARACoupl2_BPP( X,A,V,F,H,R,conv_tol,seed,PARFOR_FLAG,normX,normA,Size_input,Constraints,mu,lambda );
-        figure()
-        plot(RMSE_TIME(:,1),RMSE_TIME(:,2));
-        xlabel("Time");
-        ylabel("RMSE");
-        saveas(gcf,strcat(num2str(R), "_projection"),'epsc');
-
-        save(strcat(num2str(R), "_ctrl.mat"));
-    end
+    [A_case, X_case] = A_join_X(A_case, X_df);
+    [A_ctrl, X_ctrl] = A_join_X(A_ctrl, X_df);
+    save('AX.mat','X_case','A_case', 'X_ctrl', 'A_ctrl');
 end
+
+R = 5;
+
+A_case = A_case{:, :};
+A_ctrl = A_ctrl{:, :};
+
+[normX, normA, Size_input, TOTAL_running_TIME,rmse,FIT_Tensor,FIT_Matrix,RMSE_TIME_case,U_case,Q_case,H,V,W_case,F] = fit(R, A_case, X_case);
+
+[normX, normA, Size_input, TOTAL_running_TIME,RMSE,FIT_T,FIT_M,RMSE_TIME_ctrl,U,Q,H,V,W,F] = project(R, A_ctrl, X_ctrl, V, F, H);
