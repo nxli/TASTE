@@ -37,3 +37,7 @@ There are two main functions defined in `main.py`: `fit(R, A, X)` and `project(R
 * `A` denotes the static feature matrix
 * `X` denotes the temporal feature matrix
 * `V`, `F`, `H` are the matrices obtained from the `fit` function.
+
+### In Memory of Ardavan (Ari) Afshar
+
+Ari is a good mentor in directing us with this project. It is really sad to see a good person not around any more. RIP Ari, you will be missed. [Kudoboard](https://www.kudoboard.com/boards/7Rxs5p8Q)
